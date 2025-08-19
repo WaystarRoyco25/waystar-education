@@ -98,7 +98,6 @@
             predictionsDiv.classList.remove('hidden');
             predictionsDiv.innerHTML = '<p class="text-indigo-400 text-lg animate-pulse">Contacting our prediction server...</p>';
 
-            // 1. Retrieve the profile from the previous page
             const studentProfile = JSON.parse(localStorage.getItem('studentProfile'));
 
             if (!studentProfile) {
@@ -106,7 +105,6 @@
                 return;
             }
 
-            // 2. Get the college list from the current form
             const collegeInputs = form.querySelectorAll('input[name="college"]');
             const colleges = Array.from(collegeInputs).map(input => input.value).filter(value => value.trim() !== '');
 
@@ -116,8 +114,7 @@
             }
 
             try {
-                // 3. Call YOUR backend server
-                const response = await fetch('http://localhost:3000/get-predictions', {
+                const response = await fetch('https://waystar-backend-j0hp.onrender.com/get-predictions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -134,7 +131,6 @@
 
                 const data = await response.json();
 
-                // 4. Build and display the results
                 let resultsHtml = `<div class="text-left space-y-4">`;
                 data.predictions.forEach(p => {
                     resultsHtml += `
@@ -151,7 +147,7 @@
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                predictionsDiv.innerHTML = `<p class="text-red-400">Error: Could not connect to the prediction server. Is it running in your terminal?</p>`;
+                predictionsDiv.innerHTML = `<p class="text-red-400">Error: Could not connect to the prediction server. Please try again in a moment.</p>`;
             }
         });
     </script>
