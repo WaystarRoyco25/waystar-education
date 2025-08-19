@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waystar Education | 2025 Predictive Admissions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a1a;
+        }
+        .glassmorphism {
+            background: rgba(16, 16, 32, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hero-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(58, 10, 108, 0.4) 0%, rgba(10, 10, 26, 0) 60%);
+        }
+        .btn-glow {
+            box-shadow: 0 0 5px #6366f1, 0 0 10px #6366f1, 0 0 15px #818cf8;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 10px #818cf8, 0 0 20px #818cf8, 0 0 30px #a5b4fc;
+        }
+        .form-input {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #818cf8;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glassmorphism">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider text-white">Waystar <span class="text-indigo-400">Education</span></h1>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="min-h-screen flex items-center justify-center hero-bg px-4 pt-20">
+            <div class="text-center max-w-4xl">
+                <h2 class="text-5xl md:text-7xl font-black text-white leading-tight tracking-tight">
+                    See your 2025 college admissions
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">before they happen.</span>
+                </h2>
+                <p class="mt-6 text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+                    Our advanced predictive model is trained on a massive dataset, analyzing thousands of data points to forecast your admission chances with unparalleled accuracy.
+                </p>
+                <div class="mt-8 max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="glassmorphism rounded-lg p-4">
+                        <p class="text-3xl font-bold text-indigo-400">156,000+</p>
+                        <p class="text-sm text-gray-300">Real Student Cases</p>
+                    </div>
+                    <div class="glassmorphism rounded-lg p-4">
+                        <p class="text-3xl font-bold text-indigo-400">20+</p>
+                        <p class="text-sm text-gray-300">Years of Data</p>
+                    </div>
+                    <div class="glassmorphism rounded-lg p-4">
+                        <p class="text-3xl font-bold text-indigo-400">10</p>
+                        <p class="text-sm text-gray-300">College Predictions</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Predictor Form Section -->
+        <section id="predictor" class="py-20 sm:py-32">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto glassmorphism rounded-2xl p-8 md:p-12">
+                    <h3 class="text-3xl font-bold text-center text-white mb-2">Enter Your Academic Profile</h3>
+                    <p class="text-center text-gray-400 mb-8">This model is currently calibrated for U.S. colleges (including the UC system).</p>
+                    
+                    <form id="admission-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+                        <div>
+                            <label for="gpa" class="block text-sm font-medium text-gray-300 mb-2">GPA (Unweighted 4.0 Scale)</label>
+                            <input type="text" id="gpa" name="gpa" placeholder="e.g., 3.85" class="w-full form-input p-3 rounded-md text-white">
+                        </div>
+                        <div>
+                            <label for="sat" class="block text-sm font-medium text-gray-300 mb-2">SAT Score (or ACT equivalent)</label>
+                            <input type="text" id="sat" name="sat" placeholder="e.g., 1520" class="w-full form-input p-3 rounded-md text-white">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Extracurricular Activities (up to 10)</label>
+                            <div id="ec-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" name="ec" placeholder="EC 1: e.g., Varsity Soccer Captain" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 2" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 3" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 4" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 5" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 6" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 7" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 8" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 9" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="ec" placeholder="EC 10" class="w-full form-input p-3 rounded-md text-white">
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                             <label class="block text-sm font-medium text-gray-300 mb-2">Honors & Awards (up to 5)</label>
+                             <div id="award-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" name="award" placeholder="Award 1: e.g., National Merit Scholar" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="award" placeholder="Award 2" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="award" placeholder="Award 3" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="award" placeholder="Award 4" class="w-full form-input p-3 rounded-md text-white">
+                                <input type="text" name="award" placeholder="Award 5" class="w-full form-input p-3 rounded-md text-white">
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 text-center mt-4">
+                            <button type="button" id="submit-btn" class="bg-indigo-600 text-white font-semibold px-10 py-4 rounded-lg btn-glow w-full md:w-auto">
+                                Enter the College List
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900/50 border-t border-gray-800/50 mt-20">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+            <p>&copy; 2025 Waystar Education. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        const submitButton = document.getElementById('submit-btn');
+        
+        submitButton.addEventListener('click', () => {
+            // Gather all the data from the form
+            const gpa = document.getElementById('gpa').value;
+            const sat = document.getElementById('sat').value;
+            
+            const ecInputs = document.querySelectorAll('#ec-inputs input[name="ec"]');
+            const ecs = Array.from(ecInputs).map(input => input.value).filter(value => value.trim() !== '');
+
+            const awardInputs = document.querySelectorAll('#award-inputs input[name="award"]');
+            const awards = Array.from(awardInputs).map(input => input.value).filter(value => value.trim() !== '');
+
+            // Create a profile object
+            const studentProfile = {
+                gpa,
+                sat,
+                ecs,
+                awards
+            };
+
+            // Save the profile to the browser's local storage
+            localStorage.setItem('studentProfile', JSON.stringify(studentProfile));
+
+            // Redirect to the next page (make sure the file is named correctly)
+            window.location.href = './college_list.html'; // Assuming your second page is named college_list.html
+        });
+    </script>
+
+</body>
+</html>
