@@ -21,7 +21,7 @@ app.post('/get-predictions', async (req, res) => {
             return res.status(400).send("Missing student profile or college list.");
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Using a standard, stable model
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" }); // Using a standard, stable model
 
         const prompt = `
             You are an expert college admissions counselor. Based on the following student profile, predict the admission chances for each university in the target list. For each prediction, provide a percentage chance and a brief, two-sentence reasoning.
