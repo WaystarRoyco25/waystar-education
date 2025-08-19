@@ -9,7 +9,7 @@ app.use(cors()); // Allows your webpage to talk to this server
 
 // --- IMPORTANT ---
 // Replace "YOUR_GEMINI_API_KEY" with your actual key from Google AI Studio
-const genAI = new GoogleGenerativeAI("YOUR_GEMINI_API_KEY");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // This is your new endpoint
 app.post('/get-predictions', async (req, res) => {
