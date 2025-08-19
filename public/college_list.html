@@ -131,19 +131,12 @@
 
                 const data = await response.json();
 
-                let resultsHtml = `<div class="text-left space-y-4">`;
-                data.predictions.forEach(p => {
-                    resultsHtml += `
-                        <div class="glassmorphism rounded-lg p-4 border border-indigo-500/30">
-                            <h4 class="text-xl font-bold text-white">${p.college_name}</h4>
-                            <p class="text-3xl font-bold text-indigo-400 my-2">${p.admission_chance_percent}%</p>
-                            <p class="text-gray-300">${p.reasoning}</p>
-                        </div>
-                    `;
-                });
-                resultsHtml += `</div>`;
-                
-                predictionsDiv.innerHTML = resultsHtml;
+                // --- KEY CHANGES ---
+                // 1. Save the results to localStorage
+                localStorage.setItem('predictionResults', JSON.stringify(data.predictions));
+
+                // 2. Redirect to the new results page
+                window.location.href = './results.html';
 
             } catch (error) {
                 console.error('Fetch error:', error);
