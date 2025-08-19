@@ -1,17 +1,36 @@
 // server.js
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const cors = require('cors');
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // Allows your webpage to talk to this server
+app.use(cors());
 
-// --- IMPORTANT ---
-// Replace "YOUR_GEMINI_API_KEY" with your actual key from Google AI Studio
+// This line now correctly loads your API key from Render's environment
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// This is your new endpoint
+// --- NEW ---
+// Define safety settings to be less restrictive
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
+
 app.post('/get-predictions', async (req, res) => {
     try {
         const studentProfile = req.body.profile;
@@ -21,7 +40,7 @@ app.post('/get-predictions', async (req, res) => {
             return res.status(400).send("Missing student profile or college list.");
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" }); // Using a standard, stable model
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `
             You are an expert college admissions counselor. Based on the following student profile, predict the admission chances for each university in the target list. For each prediction, provide a percentage chance and a brief, two-sentence reasoning.
@@ -55,15 +74,21 @@ app.post('/get-predictions', async (req, res) => {
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig,
+            safetySettings, // <-- The new safety settings are added here
         });
 
         const response = result.response;
-        const predictions = JSON.parse(response.text());
+        
+        // Add a check to make sure the response is not empty
+        if (!response || !response.text()) {
+            throw new Error("Received an empty response from the API.");
+        }
 
+        const predictions = JSON.parse(response.text());
         res.json({ predictions });
 
     } catch (error) {
-        console.error("Error calling Gemini API:", error);
+        console.error("Error processing request:", error);
         res.status(500).send("An error occurred while getting predictions.");
     }
 });
