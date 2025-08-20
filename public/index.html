@@ -39,6 +39,18 @@
             border-color: #818cf8;
             outline: none;
         }
+        .radio-label {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        input[type="radio"]:checked + .radio-label {
+            background-color: #4f46e5;
+            border-color: #6366f1;
+        }
     </style>
 </head>
 <body class="text-gray-200">
@@ -82,10 +94,36 @@
         <section id="predictor" class="py-20 sm:py-32">
             <div class="container mx-auto px-6">
                 <div class="max-w-4xl mx-auto glassmorphism rounded-2xl p-8 md:p-12">
-                    <h3 class="text-3xl font-bold text-center text-white mb-2">Enter Your Academic Profile</h3>
+                    <h3 class="text-3xl font-bold text-center text-white mb-2">Enter Your Profile</h3>
                     <p class="text-center text-gray-400 mb-8">This model is currently calibrated for U.S. colleges (including the UC system).</p>
                     
                     <form id="admission-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+                        <!-- Demographics -->
+                        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Gender</label>
+                                <div class="flex space-x-2">
+                                    <input type="radio" name="gender" id="male" value="Male" class="sr-only"><label for="male" class="radio-label flex-1 text-center">Male</label>
+                                    <input type="radio" name="gender" id="female" value="Female" class="sr-only"><label for="female" class="radio-label flex-1 text-center">Female</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">US Citizen</label>
+                                <div class="flex space-x-2">
+                                    <input type="radio" name="citizen" id="citizen_yes" value="Yes" class="sr-only"><label for="citizen_yes" class="radio-label flex-1 text-center">Yes</label>
+                                    <input type="radio" name="citizen" id="citizen_no" value="No" class="sr-only"><label for="citizen_no" class="radio-label flex-1 text-center">No</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">US High School</label>
+                                <div class="flex space-x-2">
+                                    <input type="radio" name="us_school" id="school_yes" value="Yes" class="sr-only"><label for="school_yes" class="radio-label flex-1 text-center">Yes</label>
+                                    <input type="radio" name="us_school" id="school_no" value="No" class="sr-only"><label for="school_no" class="radio-label flex-1 text-center">No</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Academics -->
                         <div>
                             <label for="gpa" class="block text-sm font-medium text-gray-300 mb-2">GPA (Unweighted 4.0 Scale)</label>
                             <input type="text" id="gpa" name="gpa" placeholder="e.g., 3.85" class="w-full form-input p-3 rounded-md text-white">
@@ -94,6 +132,33 @@
                             <label for="sat" class="block text-sm font-medium text-gray-300 mb-2">SAT Score (or ACT equivalent)</label>
                             <input type="text" id="sat" name="sat" placeholder="e.g., 1520" class="w-full form-input p-3 rounded-md text-white">
                         </div>
+
+                        <!-- AP Scores -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">AP Subjects & Scores (up to 15)</label>
+                            <div id="ap-scores" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <!-- AP Score Pair 1-5 -->
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <!-- AP Score Pair 6-10 -->
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <!-- AP Score Pair 11-15 -->
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                                <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
+                            </div>
+                        </div>
+
+                        <!-- Extracurriculars & Awards -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-300 mb-2">Extracurricular Activities (up to 10)</label>
                             <div id="ec-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -140,29 +205,45 @@
         const submitButton = document.getElementById('submit-btn');
         
         submitButton.addEventListener('click', () => {
-            // Gather all the data from the form
+            // Gather all data
+            const gender = document.querySelector('input[name="gender"]:checked')?.value;
+            const isCitizen = document.querySelector('input[name="citizen"]:checked')?.value;
+            const isUsSchool = document.querySelector('input[name="us_school"]:checked')?.value;
             const gpa = document.getElementById('gpa').value;
             const sat = document.getElementById('sat').value;
-            
+
+            const apSubjects = document.querySelectorAll('input[name="ap_subject"]');
+            const apScores = document.querySelectorAll('input[name="ap_score"]');
+            const apResults = [];
+            for (let i = 0; i < apSubjects.length; i++) {
+                if (apSubjects[i].value && apScores[i].value) {
+                    apResults.push(`${apSubjects[i].value}: ${apScores[i].value}`);
+                }
+            }
+
             const ecInputs = document.querySelectorAll('#ec-inputs input[name="ec"]');
             const ecs = Array.from(ecInputs).map(input => input.value).filter(value => value.trim() !== '');
 
             const awardInputs = document.querySelectorAll('#award-inputs input[name="award"]');
             const awards = Array.from(awardInputs).map(input => input.value).filter(value => value.trim() !== '');
 
-            // Create a profile object
+            // Create profile object
             const studentProfile = {
+                gender,
+                isCitizen,
+                isUsSchool,
                 gpa,
                 sat,
+                apResults,
                 ecs,
                 awards
             };
 
-            // Save the profile to the browser's local storage
+            // Save to local storage
             localStorage.setItem('studentProfile', JSON.stringify(studentProfile));
 
-            // Redirect to the next page (make sure the file is named correctly)
-            window.location.href = './college_list.html'; // Assuming your second page is named college_list.html
+            // Redirect
+            window.location.href = './college_list.html';
         });
     </script>
 
