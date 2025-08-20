@@ -19,6 +19,20 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #6366f1;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="text-gray-200">
@@ -43,30 +57,53 @@
             </div>
 
             <!-- Predictions Section -->
-            <div class="glassmorphism rounded-2xl p-8">
+            <div class="glassmorphism rounded-2xl p-8 mb-8">
                 <h3 class="text-2xl font-bold text-white mb-4">College Predictions</h3>
                 <div id="college-results" class="space-y-4">
                     <!-- Prediction results will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- AI Strategic Advice Section -->
+            <div id="ai-advice-container" class="glassmorphism rounded-2xl p-8">
+                <h3 class="text-2xl font-bold text-white mb-4">Strategic Advice</h3>
+                <div id="ai-advice-content" class="text-gray-300 leading-relaxed">
+                    <div class="flex items-center">
+                        <div class="loader"></div>
+                        <span>Generating personalized feedback...</span>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Main function to orchestrate the page loading
+        async function main() {
             const profileData = localStorage.getItem('studentProfile');
-
-            // If no data, redirect to the start
             if (!profileData) {
                 window.location.href = './index.html';
                 return;
             }
 
             const profile = JSON.parse(profileData);
-            const summaryContainer = document.getElementById('profile-summary');
-            const resultsContainer = document.getElementById('college-results');
+            
+            // 1. Populate the profile summary on the page
+            populateProfileSummary(profile);
 
-            // --- Populate Profile Summary ---
+            // 2. Populate the college predictions and get the results for the AI
+            const predictionResults = populateCollegePredictions(profile);
+
+            // 3. Call the Gemini API to get strategic advice
+            await getStrategicAdvice(profile, predictionResults);
+            
+            // Optional: Clear the local storage after displaying the results
+            // localStorage.removeItem('studentProfile');
+        }
+
+        // Populates the top summary box with GPA, SAT, etc.
+        function populateProfileSummary(profile) {
+            const summaryContainer = document.getElementById('profile-summary');
             const createSummaryItem = (label, value) => {
                 const div = document.createElement('div');
                 div.innerHTML = `
@@ -79,41 +116,102 @@
             summaryContainer.appendChild(createSummaryItem('SAT', profile.sat));
             summaryContainer.appendChild(createSummaryItem('AP Exams Taken', profile.apResults.length));
             summaryContainer.appendChild(createSummaryItem('Extracurriculars', profile.ecs.length));
+        }
 
-            // --- Populate College Predictions ---
+        // Populates the list of colleges and their predicted admission chances
+        function populateCollegePredictions(profile) {
+            const resultsContainer = document.getElementById('college-results');
+            const predictionResults = [];
+
             if (profile.colleges && profile.colleges.length > 0) {
                 profile.colleges.forEach(collegeName => {
-                    // This is a simple mock prediction logic.
-                    // In a real application, you would call your backend model here.
+                    // This is mock prediction logic. In a real app, this would come from a backend model.
                     const prediction = Math.floor(Math.random() * 80) + 10; // Random % between 10-90
-                    let category = 'Target';
                     let colorClass = 'text-green-400';
-                    if (prediction < 30) {
-                        category = 'Reach';
-                        colorClass = 'text-indigo-400';
-                    } else if (prediction > 70) {
-                        category = 'Likely';
-                        colorClass = 'text-teal-400';
-                    }
+                    if (prediction < 30) colorClass = 'text-indigo-400';
+                    if (prediction > 70) colorClass = 'text-teal-400';
 
                     const resultDiv = document.createElement('div');
                     resultDiv.className = 'flex items-center justify-between bg-gray-900/50 p-4 rounded-lg';
                     resultDiv.innerHTML = `
                         <div>
                             <p class="font-bold text-lg text-white">${collegeName}</p>
-                            <p class="text-sm text-gray-400">${category}</p>
                         </div>
                         <p class="text-2xl font-bold ${colorClass}">${prediction}%</p>
                     `;
                     resultsContainer.appendChild(resultDiv);
+                    predictionResults.push({ college: collegeName, chance: `${prediction}%` });
                 });
             } else {
                 resultsContainer.innerHTML = `<p class="text-center text-gray-400 py-8">No colleges were entered for analysis.</p>`;
             }
+            return predictionResults;
+        }
+
+        // Generates the prompt and calls the Gemini API
+        async function getStrategicAdvice(profile, predictionResults) {
+            const adviceContainer = document.getElementById('ai-advice-content');
             
-            // Optional: Clear the local storage after displaying the results
-            // localStorage.removeItem('studentProfile');
-        });
+            // Format the profile and results into a string for the prompt
+            const profileString = `
+                - GPA: ${profile.gpa}
+                - SAT: ${profile.sat}
+                - AP Exams: ${profile.apResults.map(ap => `${ap.subject} (Score: ${ap.score})`).join(', ')}
+                - Extracurriculars: ${profile.ecs.join(', ')}
+                - Awards: ${profile.awards.join(', ')}
+            `;
+            const resultsString = predictionResults.map(r => `- ${r.college}: ${r.chance}`).join('\n');
+
+            // Construct the prompt for the Gemini API
+            const prompt = `
+                You are an expert, encouraging college admissions counselor. A student has provided their profile and received the following admission predictions.
+                
+                Student Profile:
+                ${profileString}
+
+                Admission Predictions:
+                ${resultsString}
+
+                Based on this complete profile and the admission predictions, provide a few sentences of actionable, strategic advice in a single paragraph. The tone should be encouraging but realistic. Focus on helping the student understand their strengths and weaknesses. Suggest concrete next steps, such as recalibrating their college list (e.g., adding more safety or target schools) or areas of their application they could still strengthen. Do not repeat the specific percentages in your advice.
+            `;
+
+            try {
+                // This is the fetch call to the Gemini API
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Leave as-is
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const adviceText = result.candidates[0].content.parts[0].text;
+                    // Display the generated text
+                    adviceContainer.textContent = adviceText;
+                } else {
+                   throw new Error("Invalid response structure from API.");
+                }
+
+            } catch (error) {
+                console.error("Error fetching strategic advice:", error);
+                adviceContainer.textContent = "We couldn't generate personalized advice at this time. Please try again later. Your results are still displayed above.";
+            }
+        }
+
+        // Run the main function when the page is fully loaded
+        document.addEventListener('DOMContentLoaded', main);
     </script>
 
 </body>
