@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Waystar Education</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- IMPORTANT: Replace "YOUR_CLIENT_ID" with your actual PayPal Client ID -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AcJcQOs-Zhkc21_u8jt4e6KV4RVs-SUAecBCXTfNJ-byqmckLb_SEQuD2vbGU8mo3y2h_kA9sGy4cRfh&currency=USD"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a1a;
+        }
+        .glassmorphism {
+            background: rgba(16, 16, 32, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glassmorphism">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider text-white">Waystar <span class="text-indigo-400">Education</span></h1>
+        </nav>
+    </header>
+
+    <main class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-xl w-full mx-auto glassmorphism rounded-2xl p-8 md:p-12 text-center">
+            <h2 class="text-4xl font-bold text-white mb-4">Your Analysis is Ready!</h2>
+            <p class="text-gray-400 mb-6">
+                We've processed your profile and generated your personalized college admission predictions. To unlock your detailed report and see your chances at your selected universities, please complete the secure payment.
+            </p>
+            
+            <div class="bg-gray-900/50 rounded-lg p-6 mb-8">
+                <p class="text-lg text-gray-300">Total Amount</p>
+                <p class="text-5xl font-extrabold text-white">$49.00</p>
+            </div>
+
+            <!-- PayPal Button Container -->
+            <div id="paypal-button-container" class="max-w-sm mx-auto"></div>
+            
+            <p id="payment-error" class="text-red-400 mt-4 hidden">There was an error processing your payment. Please try again.</p>
+        </div>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileData = localStorage.getItem('studentProfile');
+            if (!profileData) {
+                window.location.href = './index.html';
+                return;
+            }
+            const profile = JSON.parse(profileData);
+            // Also check if colleges have been added
+            if (!profile.colleges || profile.colleges.length === 0) {
+                window.location.href = './college_list.html';
+            }
+        });
+
+        paypal.Buttons({
+            // Sets up the transaction when a payment button is clicked
+            createOrder: (data, actions) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: 'Waystar Education Predictive Analysis',
+                        amount: {
+                            value: '49.00', // The payment amount
+                            currency_code: 'USD'
+                        }
+                    }]
+                });
+            },
+            // Finalize the transaction after payer approval
+            onApprove: (data, actions) => {
+                return actions.order.capture().then(function(orderData) {
+                    // Successful capture!
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                    // Redirect to the results page upon successful payment
+                    window.location.href = './results.html';
+                });
+            },
+            // Handle errors
+            onError: (err) => {
+                console.error('An error occurred during the transaction:', err);
+                const errorContainer = document.getElementById('payment-error');
+                errorContainer.classList.remove('hidden');
+            }
+        }).render('#paypal-button-container');
+    </script>
+
+</body>
+</html>

@@ -137,19 +137,16 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-300 mb-2">AP Subjects & Scores (up to 15)</label>
                             <div id="ap-scores" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <!-- AP Score Pair 1-5 -->
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
-                                <!-- AP Score Pair 6-10 -->
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
-                                <!-- AP Score Pair 11-15 -->
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
                                 <div class="grid grid-cols-2 gap-2"><input type="text" name="ap_subject" placeholder="AP Subject" class="form-input p-2 rounded-md text-white col-span-2 sm:col-span-1"><input type="number" name="ap_score" placeholder="Score" min="1" max="5" class="form-input p-2 rounded-md text-white"></div>
@@ -217,7 +214,7 @@
             const apResults = [];
             for (let i = 0; i < apSubjects.length; i++) {
                 if (apSubjects[i].value && apScores[i].value) {
-                    apResults.push(`${apSubjects[i].value}: ${apScores[i].value}`);
+                    apResults.push({ subject: apSubjects[i].value, score: apScores[i].value });
                 }
             }
 
@@ -236,13 +233,14 @@
                 sat,
                 apResults,
                 ecs,
-                awards
+                awards,
+                colleges: [] // Initialize empty college list
             };
 
             // Save to local storage
             localStorage.setItem('studentProfile', JSON.stringify(studentProfile));
 
-            // Redirect
+            // Redirect to the new college list page
             window.location.href = './college_list.html';
         });
     </script>
