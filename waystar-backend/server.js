@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// It's recommended to use environment variables for your API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const safetySettings = [
@@ -27,13 +28,19 @@ app.post('/get-predictions', async (req, res) => {
 
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
+        // --- MODIFICATION START ---
+        // The prompt is enhanced to demand more nuanced and diversified predictions.
+        // It also explicitly asks for strengths, weaknesses, and advice in the reasoning.
         const prompt = `
             You are an expert U.S. college admissions counselor. Based on the following detailed student profile, predict the admission chances for each university in the target list.
 
             CRITICAL INSTRUCTIONS:
-            1.  **Analyze Holistically**: Consider all aspects of the profile, including demographics, academic performance, and extracurriculars.
-            2.  **Analyze Quality**: Objectively evaluate the quality and impact of each activity and honor. An international award is more impressive than a regional one. Leadership is more impactful than membership. Factor this heavily into your prediction.
-            3.  **Analyze Consistency**: Reward students who show a consistent passion or a clear theme in their activities.
+            1.  **Analyze Holistically**: Consider all aspects of the profile: demographics, academics, extracurriculars, awards, and the demonstrated theme or 'spike'.
+            2.  **Nuanced & Diversified Predictions**: Do NOT assign the same low percentage (e.g., 5%) to all highly selective schools. Differentiate your predictions based on subtle factors. For example, consider how the student's specific extracurriculars might align better with one university's programs or culture over another's (e.g., Brown's open curriculum vs. Columbia's Core Curriculum). Find specific reasons to make the chances for similar-tier schools slightly different.
+            3.  **Structured Reasoning**: For each college, your reasoning MUST be structured into three distinct parts:
+                -   **Strengths**: Clearly specify the aspects of the student's profile that are strong points for THIS SPECIFIC college.
+                -   **Weaknesses**: Clearly specify the areas where the profile is weaker or falls short for THIS SPECIFIC college's standards.
+                -   **Advice**: Provide concrete, actionable advice on how the student could improve their profile or better frame their application for this college.
             4.  **Constrain Percentages**: The predicted admission chance percentage MUST be between 5% and 70%.
 
             Student Profile:
@@ -41,7 +48,7 @@ app.post('/get-predictions', async (req, res) => {
             - US Citizen: ${studentProfile.isCitizen || 'Not specified'}
             - Attends US High School: ${studentProfile.isUsSchool || 'Not specified'}
             - GPA: ${studentProfile.gpa}
-            - SAT Score: ${student-profile.sat}
+            - SAT Score: ${studentProfile.sat}
             - AP Scores: ${studentProfile.apResults.join(', ') || 'None'}
             - Extracurriculars: ${studentProfile.ecs.join(', ')}
             - Awards: ${studentProfile.awards.join(', ')}
@@ -50,6 +57,7 @@ app.post('/get-predictions', async (req, res) => {
             ${collegeList.map((college, i) => `${i + 1}. ${college}`).join('\n')}
         `;
 
+        // The response schema is updated to enforce the new structured reasoning.
         const generationConfig = {
             responseMimeType: "application/json",
             responseSchema: {
@@ -59,12 +67,22 @@ app.post('/get-predictions', async (req, res) => {
                     properties: {
                         college_name: { type: "STRING" },
                         admission_chance_percent: { type: "INTEGER" },
-                        reasoning: { type: "STRING" }
+                        reasoning: {
+                            type: "OBJECT",
+                            properties: {
+                                strengths: { type: "STRING", description: "Positive aspects of the profile for this specific college." },
+                                weaknesses: { type: "STRING", description: "Areas of improvement or concern for this specific college." },
+                                advice: { type: "STRING", description: "Actionable steps for the applicant." }
+                            },
+                            required: ["strengths", "weaknesses", "advice"]
+                        }
                     },
                     required: ["college_name", "admission_chance_percent", "reasoning"]
                 }
             }
         };
+        // --- MODIFICATION END ---
+
 
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -80,6 +98,7 @@ app.post('/get-predictions', async (req, res) => {
 
         let predictions = JSON.parse(response.text());
 
+        // This clamping logic is kept as a safeguard.
         predictions = predictions.map(p => {
             let chance = p.admission_chance_percent;
             if (chance < 5) chance = 5;
@@ -99,4 +118,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
