@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 // It's recommended to use environment variables for your API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.AIzaSyBhuyvTVOPqI3f5zv0yT7opvYVyEbN2EKU);
 
 const safetySettings = [
   { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
@@ -26,7 +26,7 @@ app.post('/get-predictions', async (req, res) => {
             return res.status(400).send("Missing student profile or college list.");
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
         // --- MODIFICATION START ---
         // The prompt is enhanced to demand more nuanced and diversified predictions.
