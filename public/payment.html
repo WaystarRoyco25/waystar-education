@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment | Waystar Education</title>
+    <title>Analysis Ready | Waystar Education</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <!-- IMPORTANT: Replace "YOUR_CLIENT_ID" with your actual PayPal Client ID -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AcJcQOs-Zhkc21_u8jt4e6KV4RVs-SUAecBCXTfNJ-byqmckLb_SEQuD2vbGU8mo3y2h_kA9sGy4cRfh&currency=USD"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -20,6 +18,13 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-glow {
+            box-shadow: 0 0 5px #6366f1, 0 0 10px #6366f1, 0 0 15px #818cf8;
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 10px #818cf8, 0 0 20px #818cf8, 0 0 30px #a5b4fc;
         }
     </style>
 </head>
@@ -34,71 +39,45 @@
 
     <main class="min-h-screen flex items-center justify-center px-4">
         <div class="max-w-xl w-full mx-auto glassmorphism rounded-2xl p-8 md:p-12 text-center">
-            <h2 class="text-4xl font-bold text-white mb-4">Your Analysis is Ready!</h2>
+            <h2 class="text-4xl font-bold text-white mb-4">Your Free Analysis is Ready!</h2>
             <p class="text-gray-400 mb-6">
-                We've processed your profile and generated your personalized college admission predictions. To unlock your detailed report and see your chances at your selected universities, please complete the secure payment.
+                We've processed your profile and generated your personalized college admission predictions. Click the button below to view your detailed report.
             </p>
             
-            <!-- New Privacy Statement -->
-            <p class="text-sm text-gray-500 mb-6">
-                Your privacy is important to us. We do not save any of the personal or academic information you have entered.
+            <!-- Privacy Statement -->
+            <p class="text-sm text-gray-500 mb-8">
+                This analysis is currently free. Your privacy is important to us, and we do not save any of the personal or academic information you have entered.
             </p>
 
-            <div class="bg-gray-900/50 rounded-lg p-6 mb-8">
-                <p class="text-lg text-gray-300">Total Amount</p>
-                <p class="text-5xl font-extrabold text-white">$9.9</p>
-            </div>
-
-            <!-- PayPal Button Container -->
-            <div id="paypal-button-container" class="max-w-sm mx-auto"></div>
-            
-            <p id="payment-error" class="text-red-400 mt-4 hidden">There was an error processing your payment. Please try again.</p>
+            <!-- "View Results" Button -->
+            <button id="view-results-btn" class="bg-indigo-600 text-white font-semibold px-10 py-4 rounded-lg btn-glow w-full md:w-auto">
+                View My Free Predictions
+            </button>
         </div>
     </main>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // This logic remains important to ensure the user has completed the previous steps.
             const profileData = localStorage.getItem('studentProfile');
             if (!profileData) {
+                // If no profile, send them to the start.
                 window.location.href = './index.html';
                 return;
             }
             const profile = JSON.parse(profileData);
-            // Also check if colleges have been added
+            // If no colleges are in the profile, send them to the college list page.
             if (!profile.colleges || profile.colleges.length === 0) {
                 window.location.href = './college_list.html';
             }
         });
 
-        paypal.Buttons({
-            // Sets up the transaction when a payment button is clicked
-            createOrder: (data, actions) => {
-                return actions.order.create({
-                    purchase_units: [{
-                        description: 'Waystar Education Predictive Analysis',
-                        amount: {
-                            value: '9.9', // The payment amount
-                            currency_code: 'USD'
-                        }
-                    }]
-                });
-            },
-            // Finalize the transaction after payer approval
-            onApprove: (data, actions) => {
-                return actions.order.capture().then(function(orderData) {
-                    // Successful capture!
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                    // Redirect to the results page upon successful payment
-                    window.location.href = './results.html';
-                });
-            },
-            // Handle errors
-            onError: (err) => {
-                console.error('An error occurred during the transaction:', err);
-                const errorContainer = document.getElementById('payment-error');
-                errorContainer.classList.remove('hidden');
-            }
-        }).render('#paypal-button-container');
+        // Add event listener for the new button
+        const viewResultsButton = document.getElementById('view-results-btn');
+        viewResultsButton.addEventListener('click', () => {
+            // Simply redirect to the results page.
+            window.location.href = './results.html';
+        });
     </script>
 
 </body>
