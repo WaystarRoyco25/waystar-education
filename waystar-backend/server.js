@@ -30,19 +30,20 @@ app.post('/get-predictions', async (req, res) => {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
         // --- MODIFICATION START ---
-        // The prompt is enhanced to specifically mention analyzing GPA trend.
+        // The prompt is enhanced with stricter rules for SAT scores and empty fields.
         const prompt = `
             You are an expert U.S. college admissions counselor. Based on the following detailed student profile, predict the admission chances for each university in the target list.
 
             CRITICAL INSTRUCTIONS:
-            1.  **Analyze Holistically**: Consider all aspects of the profile: demographics, academics, extracurriculars, awards, and the demonstrated theme or 'spike'.
-            2.  **Analyze GPA Trend**: Pay close attention to the GPA trajectory from 9th to 11th grade. An upward trend is a significant positive factor, indicating growth and maturity. A downward trend is a concern. Mention this trend in your reasoning.
-            3.  **Nuanced & Diversified Predictions**: Do NOT assign the same low percentage (e.g., 5%) to all highly selective schools. Differentiate your predictions based on subtle factors. For example, consider how the student's specific extracurriculars might align better with one university's programs or culture over another's (e.g., Brown's open curriculum vs. Columbia's Core Curriculum). Find specific reasons to make the chances for similar-tier schools slightly different.
-            4.  **Structured Reasoning**: For each college, your reasoning MUST be structured into three distinct parts:
+            1.  **Analyze Holistically**: Consider all aspects of the profile. If key information like extracurriculars or awards is missing, you MUST comment on this as a significant weakness in your reasoning.
+            2.  **SAT Score is Crucial**: Assume that for all selective universities, a standardized test score is a critical data point. If the SAT score is missing or not provided, treat this as a major weakness and significantly lower the admission chance. State this clearly in your reasoning.
+            3.  **Analyze GPA Trend**: Pay close attention to the GPA trajectory from 9th to 11th grade. An upward trend is a significant positive factor, indicating growth and maturity. A downward trend is a concern. Mention this trend in your reasoning.
+            4.  **Nuanced & Diversified Predictions**: Do NOT assign the same low percentage (e.g., 5%) to all highly selective schools. Differentiate your predictions based on subtle factors. For example, consider how the student's specific extracurriculars might align better with one university's programs or culture over another's.
+            5.  **Structured Reasoning**: For each college, your reasoning MUST be structured into three distinct parts:
                 -   **Strengths**: Clearly specify the aspects of the student's profile that are strong points for THIS SPECIFIC college.
                 -   **Weaknesses**: Clearly specify the areas where the profile is weaker or falls short for THIS SPECIFIC college's standards.
                 -   **Advice**: Provide concrete, actionable advice on how the student could improve their profile or better frame their application for this college.
-            5.  **Constrain Percentages**: The predicted admission chance percentage MUST be between 5% and 70%.
+            6.  **Constrain Percentages**: The predicted admission chance percentage MUST be between 5% and 70%.
 
             Student Profile:
             - Gender: ${studentProfile.gender || 'Not specified'}
@@ -51,14 +52,15 @@ app.post('/get-predictions', async (req, res) => {
             - GPA (9th Grade): ${studentProfile.gpa9 || 'Not specified'}
             - GPA (10th Grade): ${studentProfile.gpa10 || 'Not specified'}
             - GPA (11th Grade): ${studentProfile.gpa11 || 'Not specified'}
-            - SAT Score: ${studentProfile.sat}
-            - AP Scores: ${studentProfile.apResults.map(ap => `${ap.subject}: ${ap.score}`).join(', ') || 'None'}
-            - Extracurriculars: ${studentProfile.ecs.join(', ')}
-            - Awards: ${studentProfile.awards.join(', ')}
+            - SAT Score: ${studentProfile.sat || 'Not provided'}
+            - AP Scores: ${studentProfile.apResults.length > 0 ? studentProfile.apResults.map(ap => `${ap.subject}: ${ap.score}`).join(', ') : 'None provided'}
+            - Extracurriculars: ${studentProfile.ecs.length > 0 ? studentProfile.ecs.join(', ') : 'None provided'}
+            - Awards: ${studentProfile.awards.length > 0 ? studentProfile.awards.join(', ') : 'None provided'}
 
             Target College List:
             ${collegeList.map((college, i) => `${i + 1}. ${college}`).join('\n')}
         `;
+        // --- MODIFICATION END ---
 
         const generationConfig = {
             responseMimeType: "application/json",
@@ -83,7 +85,6 @@ app.post('/get-predictions', async (req, res) => {
                 }
             }
         };
-        // --- MODIFICATION END ---
 
 
         const result = await model.generateContent({
