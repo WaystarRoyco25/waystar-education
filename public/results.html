@@ -19,15 +19,20 @@
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
         .loader {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #6366f1;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #6366f1;
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -50,35 +55,28 @@
             
             <!-- Profile Summary Section -->
             <div class="glassmorphism rounded-2xl p-8 mb-8">
-                <h3 class="text-2xl font-bold text-white mb-4">Profile Snapshot</h3>
+                <h3 class="text-2xl font-bold text-white mb-6">Profile Snapshot</h3>
                 <div id="profile-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-gray-300">
                     <!-- Data will be injected here by JavaScript -->
                 </div>
             </div>
 
             <!-- Predictions Section -->
-            <div class="glassmorphism rounded-2xl p-8 mb-8">
-                <h3 class="text-2xl font-bold text-white mb-4">College Predictions</h3>
-                <div id="college-results" class="space-y-4">
-                    <!-- Prediction results will be injected here by JavaScript -->
-                </div>
-            </div>
-
-            <!-- AI Strategic Advice Section -->
-            <div id="ai-advice-container" class="glassmorphism rounded-2xl p-8">
-                <h3 class="text-2xl font-bold text-white mb-4">Strategic Advice</h3>
-                <div id="ai-advice-content" class="text-gray-300 leading-relaxed">
-                    <div class="flex items-center">
+            <div id="predictions-container">
+                <h3 class="text-2xl font-bold text-white mb-6 text-center sm:text-left">Detailed Analysis</h3>
+                <div id="college-results" class="space-y-6">
+                    <!-- Loading state -->
+                    <div id="loader" class="loader-container glassmorphism rounded-2xl p-8">
                         <div class="loader"></div>
-                        <span>Generating personalized feedback...</span>
+                        <p class="mt-4 text-gray-400">Analyzing your profile against thousands of data points...</p>
                     </div>
                 </div>
             </div>
 
             <!-- Support Email Section -->
-            <div class="text-center mt-8">
+            <div class="text-center mt-12">
                 <p class="text-gray-500 text-sm">
-                    If you have any issues with your payment or results, please contact us at <a href="mailto:muckraker1998@gmail.com" class="text-indigo-400 hover:underline">muckraker1998@gmail.com</a>.
+                    If you have any issues, please contact us at <a href="mailto:muckraker1998@gmail.com" class="text-indigo-400 hover:underline">muckraker1998@gmail.com</a>.
                 </p>
             </div>
         </div>
@@ -91,139 +89,135 @@
     </footer>
 
     <script>
-        // Main function to orchestrate the page loading
+        // --- Main function to run on page load ---
         async function main() {
             const profileData = localStorage.getItem('studentProfile');
             if (!profileData) {
-                window.location.href = './index.html';
+                window.location.href = './index.html'; // Redirect if no data
                 return;
             }
 
             const profile = JSON.parse(profileData);
             
-            // 1. Populate the profile summary on the page
+            // 1. Populate the profile summary at the top of the page
             populateProfileSummary(profile);
 
-            // 2. Populate the college predictions and get the results for the AI
-            const predictionResults = populateCollegePredictions(profile);
-
-            // 3. Call the Gemini API to get strategic advice
-            await getStrategicAdvice(profile, predictionResults);
+            // 2. Fetch predictions from the backend and display them
+            await fetchAndDisplayPredictions(profile);
             
-            // Optional: Clear the local storage after displaying the results
+            // Optional: Clear local storage after displaying results to protect user privacy
             // localStorage.removeItem('studentProfile');
         }
 
-        // Populates the top summary box with GPA, SAT, etc.
+        // --- Populates the top summary box with the student's profile ---
         function populateProfileSummary(profile) {
             const summaryContainer = document.getElementById('profile-summary');
-            const createSummaryItem = (label, value) => {
-                const div = document.createElement('div');
-                div.innerHTML = `
+            summaryContainer.innerHTML = ''; // Clear any existing content
+
+            const createSummaryItem = (label, value) => `
+                <div>
                     <p class="text-sm text-gray-400">${label}</p>
                     <p class="text-xl font-semibold text-white">${value || 'N/A'}</p>
-                `;
-                return div;
-            };
-            summaryContainer.appendChild(createSummaryItem('GPA', profile.gpa));
-            summaryContainer.appendChild(createSummaryItem('SAT', profile.sat));
-            summaryContainer.appendChild(createSummaryItem('AP Exams Taken', profile.apResults.length));
-            summaryContainer.appendChild(createSummaryItem('Extracurriculars', profile.ecs.length));
-        }
-
-        // Populates the list of colleges and their predicted admission chances
-        function populateCollegePredictions(profile) {
-            const resultsContainer = document.getElementById('college-results');
-            const predictionResults = [];
-
-            if (profile.colleges && profile.colleges.length > 0) {
-                profile.colleges.forEach(collegeName => {
-                    // This is mock prediction logic. In a real app, this would come from a backend model.
-                    const prediction = Math.floor(Math.random() * 80) + 10; // Random % between 10-90
-                    let colorClass = 'text-green-400';
-                    if (prediction < 30) colorClass = 'text-indigo-400';
-                    if (prediction > 70) colorClass = 'text-teal-400';
-
-                    const resultDiv = document.createElement('div');
-                    resultDiv.className = 'flex items-center justify-between bg-gray-900/50 p-4 rounded-lg';
-                    resultDiv.innerHTML = `
-                        <div>
-                            <p class="font-bold text-lg text-white">${collegeName}</p>
-                        </div>
-                        <p class="text-2xl font-bold ${colorClass}">${prediction}%</p>
-                    `;
-                    resultsContainer.appendChild(resultDiv);
-                    predictionResults.push({ college: collegeName, chance: `${prediction}%` });
-                });
-            } else {
-                resultsContainer.innerHTML = `<p class="text-center text-gray-400 py-8">No colleges were entered for analysis.</p>`;
-            }
-            return predictionResults;
-        }
-
-        // Generates the prompt and calls the Gemini API
-        async function getStrategicAdvice(profile, predictionResults) {
-            const adviceContainer = document.getElementById('ai-advice-content');
+                </div>
+            `;
             
-            // Format the profile and results into a string for the prompt
-            const profileString = `
-                - GPA: ${profile.gpa}
-                - SAT: ${profile.sat}
-                - AP Exams: ${profile.apResults.map(ap => `${ap.subject} (Score: ${ap.score})`).join(', ')}
-                - Extracurriculars: ${profile.ecs.join(', ')}
-                - Awards: ${profile.awards.join(', ')}
-            `;
-            const resultsString = predictionResults.map(r => `- ${r.college}: ${r.chance}`).join('\n');
+            // **FIX**: Display the three separate GPAs
+            const gpaSummary = `9th: ${profile.gpa9 || 'N/A'} | 10th: ${profile.gpa10 || 'N/A'} | 11th: ${profile.gpa11 || 'N/A'}`;
+            summaryContainer.innerHTML += createSummaryItem('GPA by Grade', gpaSummary);
+            summaryContainer.innerHTML += createSummaryItem('SAT Score', profile.sat);
+            summaryContainer.innerHTML += createSummaryItem('AP Exams', profile.apResults.length);
+            summaryContainer.innerHTML += createSummaryItem('Extracurriculars', profile.ecs.length);
+        }
 
-            // Construct the prompt for the Gemini API
-            const prompt = `
-                You are an expert, encouraging college admissions counselor. A student has provided their profile and received the following admission predictions.
-                
-                Student Profile:
-                ${profileString}
-
-                Admission Predictions:
-                ${resultsString}
-
-                Based on this complete profile and the admission predictions, provide a few sentences of actionable, strategic advice in a single paragraph. The tone should be encouraging but realistic. Focus on helping the student understand their strengths and weaknesses. Suggest concrete next steps, such as recalibrating their college list (e.g., adding more safety or target schools) or areas of their application they could still strengthen. Do not repeat the specific percentages in your advice.
-            `;
+        // --- Fetches data from the server and populates the results section ---
+        async function fetchAndDisplayPredictions(profile) {
+            const resultsContainer = document.getElementById('college-results');
+            const loader = document.getElementById('loader');
 
             try {
-                // This is the fetch call to the Gemini API
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = ""; // Leave as-is
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
+                // **CHANGE**: Call your own backend server, not the Gemini API directly
+                const response = await fetch('http://localhost:3000/get-predictions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        profile: profile,
+                        colleges: profile.colleges
+                    })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`API call failed with status: ${response.status}`);
+                    throw new Error(`Server responded with status: ${response.status}`);
                 }
 
-                const result = await response.json();
+                const data = await response.json();
                 
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const adviceText = result.candidates[0].content.parts[0].text;
-                    // Display the generated text
-                    adviceContainer.textContent = adviceText;
+                // Hide loader and clear the container
+                loader.style.display = 'none';
+                resultsContainer.innerHTML = '';
+
+                // **NEW**: Render the detailed prediction cards
+                if (data.predictions && data.predictions.length > 0) {
+                    data.predictions.forEach(p => {
+                        const predictionCard = createPredictionCard(p);
+                        resultsContainer.appendChild(predictionCard);
+                    });
                 } else {
-                   throw new Error("Invalid response structure from API.");
+                    throw new Error("No predictions were returned from the server.");
                 }
 
             } catch (error) {
-                console.error("Error fetching strategic advice:", error);
-                adviceContainer.textContent = "We couldn't generate personalized advice at this time. Please try again later. Your results are still displayed above.";
+                console.error("Error fetching predictions:", error);
+                loader.style.display = 'none';
+                resultsContainer.innerHTML = `
+                    <div class="glassmorphism rounded-2xl p-8 text-center">
+                        <h3 class="text-2xl font-bold text-red-400 mb-4">Analysis Error</h3>
+                        <p class="text-gray-300">We couldn't generate your predictions at this time. This might be a temporary issue with our server. Please try again later.</p>
+                    </div>
+                `;
             }
         }
 
-        // Run the main function when the page is fully loaded
+        // --- **NEW**: Creates the HTML for a single college result card ---
+        function createPredictionCard(prediction) {
+            const card = document.createElement('div');
+            card.className = 'glassmorphism rounded-2xl p-6';
+
+            // Determine color based on chance percentage
+            let chanceColor = 'text-green-400';
+            if (prediction.admission_chance_percent < 20) chanceColor = 'text-indigo-400';
+            if (prediction.admission_chance_percent < 10) chanceColor = 'text-purple-400';
+            if (prediction.admission_chance_percent > 50) chanceColor = 'text-teal-300';
+
+            card.innerHTML = `
+                <!-- Top Section: College Name and Chance -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-gray-700/50">
+                    <h4 class="text-2xl font-bold text-white mb-2 sm:mb-0">${prediction.college_name}</h4>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-400">Predicted Chance</p>
+                        <p class="text-4xl font-black ${chanceColor}">${prediction.admission_chance_percent}%</p>
+                    </div>
+                </div>
+
+                <!-- Bottom Section: Detailed Reasoning -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 text-gray-300">
+                    <div>
+                        <h5 class="font-bold text-white mb-2 border-b-2 border-green-500 pb-1 inline-block">Strengths</h5>
+                        <p class="text-sm leading-relaxed">${prediction.reasoning.strengths}</p>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white mb-2 border-b-2 border-yellow-500 pb-1 inline-block">Weaknesses</h5>
+                        <p class="text-sm leading-relaxed">${prediction.reasoning.weaknesses}</p>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white mb-2 border-b-2 border-blue-500 pb-1 inline-block">Advice</h5>
+                        <p class="text-sm leading-relaxed">${prediction.reasoning.advice}</p>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // --- Run the main function when the page is fully loaded ---
         document.addEventListener('DOMContentLoaded', main);
     </script>
 
